@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>BabyJubjub 2021 Signature Suite</title>
+    <script
+      src="https://www.w3.org/Tools/respec/respec-w3c"
+      class="remove"
+      defer
+    ></script>
+    <script class="remove">
+      var respecConfig = {
+        specStatus: "ED", // Use "ED" for Editor's Draft or "unofficial" for an unofficial draft
+        shortName: "BJJSignature2021", // Replace with a short name for your signature suite
+        editors: [
+          {
+            name: "Ron Kahat",
+            company: "PolygonID",
+            companyURL: "https://polygon.technology/polygon-id",
+          },
+        ],
+        copyrightStart: "2021",
+        xref: "web-platform",
+        github: "https://github.com/tronch0/BJJSignature2021",
+        doJsonLd: true,
+        localBiblio:  {
+          "RDF-DATASET-NORMALIZATION": {
+            title:    "RDF Dataset Normalization 1.0",
+            href:     "https://www.w3.org/TR/rdf-canon/",
+            authors:  ["David Longley", "Manu Sporny"],
+            status:   "CG-DRAFT",
+            publisher:  "JSON-LD Community Group"
+          },
+          "GKR+19": {
+            title:    "POSEIDON: A New Hash Function for Zero-Knowledge Proof Systems",
+            href:     "https://eprint.iacr.org/2019/458.pdf", // https://spec.filecoin.io/algorithms/crypto/poseidon/
+            authors:  ["Lorenzo Grassi", "Dmitry Khovratovich", "Christian Rechberger", "Arnab Roy", "Markus Schofnegger"],
+            publisher:  "IACR"
+          },
+          "LD-SIGNATURES": {
+            title:    "Linked Data Signatures 1.0",
+            href:     "https://web-payments.org/specs/source/ld-signatures/",
+            authors:  ["David Longley", "Manu Sporny"],
+            status:   "CG-DRAFT",
+            publisher:  "Web Payments Community Group"
+          },
+          "BB19": {
+            title:    "EdDSA For Baby Jubjub Elliptic Curve with MiMC-7 Hash",
+            href:     "https://iden3-docs.readthedocs.io/en/latest/_downloads/a04267077fb3fdbf2b608e014706e004/Ed-DSA.pdf",
+            authors:  ["Jordi Baylina", "Marta Bellés"]
+          }
+          // <td>signatureAlgorithm</td>
+          //   <td><a href="https://eips.ethereum.org/EIPS/eip-2494">BabyJubJub</a></td>
+          //   <td>[[EIP-2494]]</td>
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <section id="abstract">
+      <p>
+        This specification describes the BabyJubjub 2021 Signature Suite, created in 2021 for the Verifiable Credentials Data Integrity Proof specification. The Signature Suite is designed to be zk-friendly, allowing the implementation of an additional security layer that can offer additional privacy through zero-knowledge signature proofs.          
+      </p>
+    </section>
+
+    <section id="sotd">
+      <p>
+        This document is a draft specification developed by PolygonID and is provided for public review and feedback. The current version of the document is a work in progress and may be subject to changes or updates based on community input, technical advancements, or further research.
+
+        The specification has not yet been submitted to, reviewed, or approved by any formal standards organization such as the W3C. However, it is intended to align closely with the existing W3C recommendations, specifications, and best practices related to decentralized identifiers, verifiable credentials, and digital signatures.      
+      </p>
+    </section>
+
+    <section id="introduction">
+      <h2>Introduction</h2>
+      <p>
+        This specification presents the BabyJubjub 2021 Signature Suite, created in 2021 for the Verifiable Credentials Data Integrity Proof specification. The suite employs EdDSA on the BabyJubJub curve as the signature algorithm, providing an efficient structure for signing and verifying credentials while being zk-friendly.
+
+        Although the signature suite itself does not actively involve zero-knowledge proofs, its design is conducive to privacy-preserving computations and can be easily integrated with zkSNARKs and other zero-knowledge proof systems. This document details the components, structure, and implementation guidance for the BabyJubjub 2021 Signature Suite, catering to developers, implementers, and users.
+            </p>
+    </section>
+
+    <section id="terminology">
+        <h2>Terminology</h2>
+        <p>
+          The following terms are used to describe concepts involved in the
+          generation and verification of the Linked Data Proof
+          <a>signature suite</a>.
+        </p>
+  
+        <dl>
+          <dt><dfn>signature suite</dfn></dt>
+          <dd>
+            A specified set of cryptographic primitives typically consisting of a
+            canonicalization algorithm, a message digest algorithm, and a
+            signature algorithm that are bundled together by cryptographers for
+            developers for the purposes of safety and convenience.
+          </dd>
+          <dt><dfn>canonicalization algorithm</dfn></dt>
+          <dd>
+            An algorithm that takes an input document that has more than one
+            possible representation and always transforms it into a
+            <a>canonical form</a>. This process is sometimes also called
+            normalization.
+          </dd>
+          <dt>
+            <dfn data-lt="message digest algorithm | message digest algorithms"
+              >message digest algorithm</dfn
+            >
+          </dt>
+          <dd>
+            An algorithm that takes a message, preferably in some
+            <a>canonical form</a> and produces a cryptographic output called a
+            digest that is often many orders of magnitude smaller than the input
+            message. These algorithms are often 1) very fast, 2) non-reversible,
+            3) cause the output to change significantly when even one bit of the
+            input message changes, and 4) make it infeasible to find two different
+            inputs for the same output.
+          </dd>
+          <dt><dfn>canonical form</dfn></dt>
+          <dd>
+            The output of applying a <a>canonicalization algorithm</a> to an input
+            document.
+          </dd>
+          <dt><dfn>signature algorithm</dfn></dt>
+          <dd>
+            An algorithm that takes an input message and produces an output value
+            where the receiver of the message can mathematically verify that the
+            message has not been modified in transit and came from someone
+            possessing a particular secret.
+          </dd>
+          <dt>
+            <dfn data-lt="linked data document|linked data documents"
+              >linked data document</dfn
+            >
+          </dt>
+          <dd>A document comprised of linked data.</dd>
+          <dt>
+            <dfn data-lt="linked data proof|linked data proofs"
+              >linked data proof</dfn
+            >
+          </dt>
+          <dd>
+            A
+            <a
+              href="https://www.w3.org/TR/vc-data-integrity/#proofs"
+              class="externalDFN"
+              >proof</a
+            >
+            which is a set of attributes that represent a linked data digital
+            proof and the parameters required to verify it as defined by
+            RDF-N-Quads.
+          </dd>
+          <dt>linked data proof document</dt>
+          <dd>
+            A <a>linked data document</a> featuring one or more
+            <a>linked data proofs</a>.
+          </dd>
+  
+          <!-- <dt><dfn>JsonWebKey2020</dfn></dt>
+          <dd>
+            The <code>type</code> of the verification method for the signature
+            suite <a>JsonWebSignature2020</a>.
+          </dd>
+  
+          <dt><dfn>BJJSignature2021</dfn></dt>
+          <dd>
+            The <code>type</code> of the linked data proof for the signature suite
+            <a>BabyJubjub 2021</a>.
+          </dd> -->
+        </dl>
+      </section>
+
+    <section id="suite-definition">
+      <h2>Suite Definition</h2>
+      <p>
+        The BabyJubjub 2021 signature suite MUST be used in conjunction with the signing and verification algorithms in the Linked Data Signatures [[LD-SIGNATURES]] specification. The suite consists of the following algorithms:      
+      </p>
+
+      <table class="simple">
+        <thead>
+          <th>Parameter</th>
+          <th>Value</th>
+          <th>Specification</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>canonicalizationAlgorithm</td>
+            <td>https://w3id.org/security#URDNA2015</td>
+            <td>[[RDF-DATASET-NORMALIZATION]]</td>
+          </tr>
+          <tr>
+            <td>digestAlgorithm</td>
+            <td>Poseidon</td>
+            <td>[[GKR+19]]</td>
+          </tr>
+          <tr>
+            <td>signatureAlgorithm</td>
+            <td>EdDSA-BabyJubJub</td>
+            <td>[[BB19]]</td>
+          </tr>
+        </tbody>
+
+      </table>
+
+      <section id="modification-to-algorithms">
+        <h3>Modification to Algorithms</h3>
+        <p>
+          The hash function in the signature algorithm has been repleaced to Poseidon[[GKR+19]] hash function.
+        </p>
+
+        <!-- <section id="modifications-to-signature-algorithm">
+          <h3>Modifications to Signature Algorithm</h3>
+          <p>
+            There are two modifications over the original algorithm, the first is the hash function has been repleaced to Poseidon[[GKR+19]], and the second .
+          </p>
+          
+        </section> -->
+
+      </section>
+
+      <!-- <section id="algorithm-description">
+        <h3>Algorithm Description</h3>
+        <p>
+          Explain the algorithm in detail, including any specific parameters and security considerations.
+        </p>
+      </section>
+
+      <section id="verification-method">
+        <h3>Verification Method</h3>
+        <p>
+          Detail the process for verifying signatures in your signature suite.
+        </p>
+      </section>
+
+      <section id="key-representations">
+        <h3>Key Representations</h3>
+        <p>
+          Explain how keys are represented and formatted within the signature suite.
+        </p>
+      </section> -->
+
+      <section id="document-merklization-algorithm">
+        <h3>Document Merklization Algorithm</h3>
+        <p>
+          By merklized the document the algorithm provides additional zero-knowledge capabilities that enables us to query individual entries of JSON-LD documents inside a zkSNARK proof.  
+        </p>
+        <p>
+          The Merklization algorithm works as follow:
+          <ol>
+            <li>Get a list of RDF Quads from the canonilaized document</li>
+            <li>Then for each Quad, we build key-value where the key is the full type path, and the value is the value of the entry </li>
+            <li>Insert each key-value pair to the merkle tree where the key is the path in the tree and the leaf's value is the hash of the pair's value</li>
+          </ol>
+
+
+        </p>
+        <!-- <section id="modifications-to-signature-algorithm">
+          <h3>Modifications to Signature Algorithm</h3>
+          <p>
+            There are two modifications over the original algorithm, the first is the hash function has been repleaced to Poseidon[[GKR+19]], and the second .
+          </p>
+          
+        </section> -->
+
+      </section>
+      
+      <section id="signature-generation-verification">
+        <h3>Signature Generation and Verification</h3>
+
+        <h4 id="ProofGeneration">Signature Generation Algorithm</h4>
+
+        <p>
+          Proofs are generated using the following algorithm:
+          <ol>
+            <!-- <li>Take the input document, embeded with a proof block containing all values <i>except</i> the <b>signatureValue</b></li> -->
+            <li>Extand the json-ld document</li>
+            <li>Canonicalize the document using URDNA2015</li>
+            <li>Merklize the document</li>
+            <li>Sign the root of the document's merkle tree with the private key</li>
+            <li><a href="https://tools.ietf.org/id/draft-msporny-base58-01.html">Base58</a> encode the result and set it as the <b>signatureValue</b> on the document</li>
+          </ol>
+        </p>  
+      </section>
+
+      <section id="proof-representation">
+        <h3>Proof Representation</h3>
+        <p>
+          Describe how proofs are represented and formatted within the signature suite.
+        </p>
+      </section>
+
+      <section id="security-considerations">
+        <h3>Security Considerations</h3>
+        <p>
+          Discuss potential security risks and vulnerabilities, and provide guidance on how to mitigate them.
+        </p>
+      </section>
+
+      <section id="privacy-considerations">
+        <h3>Privacy Considerations</h3>
+        <p>
+          Address privacy concerns and provide recommendations on how to protect user privacy.
+        </p>
+      </section>
+
+      <section id="examples">
+        <h3>Examples</h3>
+        <p>
+          Include practical examples that demonstrate how to use the signature suite in various scenarios.
+        </p>
+      </section>
+    </section>
+
+    <section id="conformance">
+      <!-- <h2>Conformance</h2>
+      <p>
+        Specify the conformance requirements and criteria for implementations of the signature suite.
+      </p> -->
+    </section>
+
+    <!-- <section id="references">
+      <h2>References</h2>
+      <p>
+        List all relevant sources, including W3C specifications, academic papers, and other resources that have been referenced in the document.
+      </p>
+    </section> -->
+
+    <!-- <section id="acknowledgments">
+      <h2>Acknowledgments</h2>
+      <p>
+        Acknowledge contributors, reviewers, and others who have been involved in the development of the signature suite.
+      </p>
+    </section> -->
+  </body>
+</html>
