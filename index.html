@@ -59,7 +59,7 @@
   <body>
     <section id="abstract">
       <p>
-        This specification describes the BabyJubjub 2021 Signature Suite, created in 2021 for the Verifiable Credentials Data Integrity Proof specification. The Signature Suite is designed to be zk-friendly, allowing the implementation of an additional security layer that can offer additional privacy through zero-knowledge signature proofs.          
+        This specification describes the BabyJubjub 2021 Signature Suite, created in 2021 for the Verifiable Credentials Data Integrity Proof specification. The Signature Suite is designed to be zk-friendly, allowing the implementation of an additional security layer that can offer enhence privacy through zero-knowledge signature proofs.          
       </p>
     </section>
 
@@ -206,7 +206,7 @@
       <section id="modification-to-algorithms">
         <h3>Modification to Algorithms</h3>
         <p>
-          The hash function in the signature algorithm has been repleaced to Poseidon[[GKR+19]] hash function.
+          The hash function in the <a>signature algorithm</a> has been repleaced to Poseidon[[GKR+19]] hash function.
         </p>
 
         <!-- <section id="modifications-to-signature-algorithm">
@@ -243,7 +243,7 @@
       <section id="document-merklization-algorithm">
         <h3>Document Merklization Algorithm</h3>
         <p>
-          By merklized the document the algorithm provides additional zero-knowledge capabilities that enables us to query individual entries of JSON-LD documents inside a zkSNARK proof.  
+          By merklizing the document the <a>signature suite</a> provides additional zero-knowledge comptability which enables query individual entries of the JSON-LD documents inside a zkSNARK proof in an effcient manner.  
         </p>
         <p>
           The Merklization algorithm works as follow:
@@ -253,7 +253,7 @@
             <li>Insert each key-value pair to the merkle tree where the key is the path in the tree and the leaf's value is the hash of the pair's value</li>
           </ol>
 
-
+          We require the input document to the merklization algorithem to be expanded and canonilaized.
         </p>
         <!-- <section id="modifications-to-signature-algorithm">
           <h3>Modifications to Signature Algorithm</h3>
@@ -268,47 +268,91 @@
       <section id="signature-generation-verification">
         <h3>Signature Generation and Verification</h3>
 
-        <h4 id="ProofGeneration">Signature Generation Algorithm</h4>
+        <h4 id="signature-generation">Signature Generation Algorithm</h4>
 
         <p>
-          Proofs are generated using the following algorithm:
+          Signatures are generated using the following algorithm:
           <ol>
-            <!-- <li>Take the input document, embeded with a proof block containing all values <i>except</i> the <b>signatureValue</b></li> -->
-            <li>Extand the json-ld document</li>
+            <li>Expand the JSON-LD document using the <a href="https://www.w3.org/TR/json-ld11-api/#expansion">JSON-LD 1.1 Processing Algorithms</a></li>
             <li>Canonicalize the document using URDNA2015</li>
-            <li>Merklize the document</li>
+            <li>Merklize the document using the <a href="#document-merklization-algorithm">Merklization Algorithm</a>  </li>
             <li>Sign the root of the document's merkle tree with the private key</li>
             <li><a href="https://tools.ietf.org/id/draft-msporny-base58-01.html">Base58</a> encode the result and set it as the <b>signatureValue</b> on the document</li>
           </ol>
         </p>  
+
+        <h4 id="signature-verification">Signature Verification Algorithm</h4>
+
+        <p>
+          Signatures are veirified using the same technique as the <a href="#signature-generation">Signature Generation Algorithm</a>, here are the steps:
+          <ol>
+            <li>Expand the JSON-LD document using the <a href="https://www.w3.org/TR/json-ld11-api/#expansion">JSON-LD 1.1 Processing Algorithms</a></li>
+            <li>Canonicalize the document using URDNA2015</li>
+            <li>Merklize the document using the <a href="#document-merklization-algorithm">Merklization Algorithm</a>  </li>
+            <li>Veirify the signature agaisnt the root of the document's merkle tree and the public key</li>
+          </ol>
+        </p>  
       </section>
 
-      <section id="proof-representation">
+      <!-- <section id="proof-representation">
         <h3>Proof Representation</h3>
         <p>
           Describe how proofs are represented and formatted within the signature suite.
         </p>
-      </section>
+      </section> -->
 
       <section id="security-considerations">
         <h3>Security Considerations</h3>
         <p>
-          Discuss potential security risks and vulnerabilities, and provide guidance on how to mitigate them.
+          When implementing the BabyJubjub 2021 Signature Suite, several security considerations must be taken into account to ensure the integrity, confidentiality, and availability of the system.
         </p>
+
+        <section id="security-considerations-key-management">
+          <h4>Key Management</h4>
+          <p>
+            Proper key management practices must be followed to ensure the security of private keys. This includes secure key generation, storage, and destruction. It is essential to protect private keys from unauthorized access, as the loss or compromise of a private key could lead to impersonation or unauthorized access to signed documents.
+          </p>
+        </section>
+
+        <section id="security-considerations-cryptographic-security">
+          <h4>Cryptographic Algorithms</h4>
+          <p>
+            The security of the BabyJubjub 2021 Signature Suite is dependent on the underlying cryptographic algorithms (Poseidon hash function and BabyJubJub signature algorithm). It is crucial to ensure that the chosen algorithms have been thoroughly analyzed and deemed secure by the cryptographic community.
+          </p>
+        </section>
+
+        <section id="security-considerations-merkalization">
+          <h4>Document Merklization</h4>
+          <p>
+            The Merklization process should be carefully implemented and reviewed to ensure that it preserves the integrity of the document while allowing for efficient zero-knowledge proofs. Any vulnerabilities in the Merklization algorithm could compromise the integrity of the signed document or the privacy of the zkSNARK proofs.
+          </p>
+        </section>
+
+        <section id="security-considerations-side-channel">
+          <h4>Side Channel Attacks</h4>
+          <p>
+            Implementations of the BabyJubjub 2021 Signature Suite should be designed to be resistant to side-channel attacks. These attacks could involve timing, power consumption, or electromagnetic radiation analysis to extract secret information from the system. Proper countermeasures should be employed to prevent such attacks.
+          </p>
+        </section>
+
+
+
       </section>
 
-      <section id="privacy-considerations">
+      <!-- <section id="privacy-considerations">
         <h3>Privacy Considerations</h3>
         <p>
+          In the basic form of the BabyJubjub 2021 signature suite it provides the usual behvoir of a signature scheme, the prover needs to share with the verifier the document (aka the message), the signature and the public key of the issuer. 
+          This signature suite was secialisy designed to be comptabily and effcient in a zkSNARK setting, due to this design choice we prove a valid signature from an issuer without disclosing the signature nor the document and enhance the holder privacy termndesulay.
           Address privacy concerns and provide recommendations on how to protect user privacy.
         </p>
-      </section>
+      </section> -->
 
       <section id="examples">
         <h3>Examples</h3>
-        <p>
-          Include practical examples that demonstrate how to use the signature suite in various scenarios.
-        </p>
+        <div class="issue">
+          TODO: Add examples
+        </div>
       </section>
     </section>
 
