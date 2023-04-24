@@ -2,6 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <style>
+      table.borders-table {
+        border-collapse: collapse;
+        width: 80%;
+      }
+      table.borders-table th,
+      table.borders-table td {
+        border: 1px solid black;
+        padding: 8px;
+      }
+    </style>
+
     <title>BabyJubjub 2021 Signature Suite</title>
     <script
       src="https://www.w3.org/Tools/respec/respec-w3c"
@@ -10,12 +22,13 @@
     ></script>
     <script class="remove">
       var respecConfig = {
-        specStatus: "ED", // Use "ED" for Editor's Draft or "unofficial" for an unofficial draft
-        shortName: "BJJSignature2021", // Replace with a short name for your signature suite
+        specStatus: "ED",
+        shortName: "BJJSignature2021",
+        // group: "vc", // once we have W3C Community Group association uncomment this
         editors: [
           {
             name: "Ron Kahat",
-            company: "PolygonID",
+            company: "Polygon",
             companyURL: "https://polygon.technology/polygon-id",
           },
         ],
@@ -39,10 +52,10 @@
           },
           "LD-SIGNATURES": {
             title:    "Linked Data Signatures 1.0",
-            href:     "https://web-payments.org/specs/source/ld-signatures/",
+            href:     "https://w3c-ccg.github.io/ld-signatures/",
             authors:  ["David Longley", "Manu Sporny"],
             status:   "CG-DRAFT",
-            publisher:  "Web Payments Community Group"
+            publisher:  "Digital Verification Community Group"
           },
           "BB19": {
             title:    "EdDSA For Baby Jubjub Elliptic Curve with MiMC-7 Hash",
@@ -65,7 +78,7 @@
 
     <section id="sotd">
       <p>
-        This document is a draft specification developed by PolygonID and is provided for public review and feedback. The current version of the document is a work in progress and may be subject to changes or updates based on community input, technical advancements, or further research.
+        This document is a draft specification developed by Polygon and is provided for public review and feedback. The current version of the document is a work in progress and may be subject to changes or updates based on community input, technical advancements, or further research.
 
         The specification has not yet been submitted to, reviewed, or approved by any formal standards organization such as the W3C. However, it is intended to align closely with the existing W3C recommendations, specifications, and best practices related to decentralized identifiers, verifiable credentials, and digital signatures.      
       </p>
@@ -161,13 +174,13 @@
           <dd>
             The <code>type</code> of the verification method for the signature
             suite <a>JsonWebSignature2020</a>.
-          </dd>
+          </dd> -->
   
           <dt><dfn>BJJSignature2021</dfn></dt>
           <dd>
             The <code>type</code> of the linked data proof for the signature suite
-            <a>BabyJubjub 2021</a>.
-          </dd> -->
+            BabyJubjub 2021.
+          </dd>
         </dl>
       </section>
 
@@ -209,87 +222,56 @@
           The hash function in the <a>signature algorithm</a> has been repleaced to Poseidon[[GKR+19]] hash function.
         </p>
 
-        <!-- <section id="modifications-to-signature-algorithm">
-          <h3>Modifications to Signature Algorithm</h3>
-          <p>
-            There are two modifications over the original algorithm, the first is the hash function has been repleaced to Poseidon[[GKR+19]], and the second .
-          </p>
-          
-        </section> -->
-
       </section>
-
-      <!-- <section id="algorithm-description">
-        <h3>Algorithm Description</h3>
-        <p>
-          Explain the algorithm in detail, including any specific parameters and security considerations.
-        </p>
-      </section>
-
-      <section id="verification-method">
-        <h3>Verification Method</h3>
-        <p>
-          Detail the process for verifying signatures in your signature suite.
-        </p>
-      </section>
-
-      <section id="key-representations">
-        <h3>Key Representations</h3>
-        <p>
-          Explain how keys are represented and formatted within the signature suite.
-        </p>
-      </section> -->
 
       <section id="document-merklization-algorithm">
         <h3>Document Merklization Algorithm</h3>
         <p>
-          By merklizing the document the <a>signature suite</a> provides additional zero-knowledge comptability which enables query individual entries of the JSON-LD documents inside a zkSNARK proof in an effcient manner.  
+          The <a>signature suite</a> incorporates a document Merkleization algorithm to provide enhanced zero-knowledge compatibility support. This feature enables efficient querying of individual entries within JSON-LD documents in the context of zk-SNARK proofs. By constructing a Sparse Merkle Tree from the document, the algorithm supports selective disclosure of Verifiable Credential (VC) entries, efficiently prove membership, non-membership, and other predicate satisfactions related to the JSON-LD document, while maintaining the privacy and integrity of the data.  
+         </p>
+        <p>
+          Prior to applying the Merkleization algorithm, the document must be in its expanded and canonicalized form.
         </p>
         <p>
           The Merklization algorithm works as follow:
           <ol>
-            <li>Get a list of RDF Quads from the canonilaized document</li>
-            <li>Then for each Quad, we build key-value where the key is the full type path, and the value is the value of the entry </li>
-            <li>Insert each key-value pair to the merkle tree where the key is the path in the tree and the leaf's value is the hash of the pair's value</li>
+            <li>Obtain a list of RDF Quads from the canonicalized document.</li>
+            <li>For each Quad, construct a key-value pair where the key represents the complete type path, and the value corresponds to the entry's value. </li>
+            <li>Insert each key-value pair into the Merkle Tree, with the key serving as the path in the tree and the leaf's value being the hash of the pair's value, computed using the designated <a>message digest algorithm</a>.
           </ol>
-
-          We require the input document to the merklization algorithem to be expanded and canonilaized.
         </p>
-        <!-- <section id="modifications-to-signature-algorithm">
-          <h3>Modifications to Signature Algorithm</h3>
-          <p>
-            There are two modifications over the original algorithm, the first is the hash function has been repleaced to Poseidon[[GKR+19]], and the second .
-          </p>
-          
-        </section> -->
+
+        <p>For a detailed illustration of the Merkleization algorithm applied to a JSON-LD document, please refer to the example provided in the <a href="#document-merkleization">Examples</a> section of this document.</p>
+        <!-- <p>
+          By implementing this Merkleization algorithm, the signature suite offers a robust method for handling JSON-LD documents in a privacy-preserving and efficient manner, making it well-suited for various cryptographic applications.
+        </p> -->
 
       </section>
       
-      <section id="signature-generation-verification">
-        <h3>Signature Generation and Verification</h3>
+      <section id="proof-generation-verification">
+        <h3>Proof Generation and Verification</h3>
 
-        <h4 id="signature-generation">Signature Generation Algorithm</h4>
+        <h4 id="proof-generation">Proof Generation Algorithm</h4>
 
         <p>
-          Signatures are generated using the following algorithm:
+          The <a>BJJSignature2021</a> proof generation process follows a specific algorithm to ensure the integrity and authenticity of JSON-LD documents. The steps of the algorithm are as follows:
           <ol>
-            <li>Expand the JSON-LD document using the <a href="https://www.w3.org/TR/json-ld11-api/#expansion">JSON-LD 1.1 Processing Algorithms</a></li>
-            <li>Canonicalize the document using URDNA2015</li>
-            <li>Merklize the document using the <a href="#document-merklization-algorithm">Merklization Algorithm</a>  </li>
-            <li>Sign the root of the document's merkle tree with the private key</li>
-            <li><a href="https://tools.ietf.org/id/draft-msporny-base58-01.html">Base58</a> encode the result and set it as the <b>signatureValue</b> on the document</li>
+            <li>Expand the JSON-LD document using the <a href="https://www.w3.org/TR/json-ld11-api/#expansion">JSON-LD 1.1 Processing Algorithms.</a></li>
+            <li>Canonicalize the document using the URDNA2015 algorithm [[RDF-DATASET-NORMALIZATION]].</li>
+            <li>Apply the <a href="#document-merklization-algorithm">Document Merklization Algorithm</a> to create a Merkle tree from the canonicalized document.</li>
+            <li>Sign the root of the document's Merkle tree using the associated private key.</li>
           </ol>
         </p>  
 
-        <h4 id="signature-verification">Signature Verification Algorithm</h4>
+        <h4 id="proof-verification">Signature Verification Algorithm</h4>
 
         <p>
-          Signatures are veirified using the same technique as the <a href="#signature-generation">Signature Generation Algorithm</a>, here are the steps:
+          The <a>BJJSignature2021</a> proof verification process utilizes the same technique as the <a href="#proof-generation">Proof Generation Algorithm</a>, ensuring the consistency and security of the JSON-LD documents. The steps for signature verification are as follows:
           <ol>
             <li>Expand the JSON-LD document using the <a href="https://www.w3.org/TR/json-ld11-api/#expansion">JSON-LD 1.1 Processing Algorithms</a></li>
-            <li>Canonicalize the document using URDNA2015</li>
-            <li>Merklize the document using the <a href="#document-merklization-algorithm">Merklization Algorithm</a>  </li>
-            <li>Veirify the signature agaisnt the root of the document's merkle tree and the public key</li>
+            <li>Canonicalize the document using the URDNA2015 algorithm [[RDF-DATASET-NORMALIZATION]].</li>
+            <li>Merklize the document using the <a href="#document-merklization-algorithm">Merklization Algorithm</a>.</li>
+            <li>Veirify the signature agaisnt the root of the document's merkle tree and the public key.</li>
           </ol>
         </p>  
       </section>
@@ -351,16 +333,60 @@
       <section id="examples">
         <h3>Examples</h3>
         <div class="issue">
-          TODO: Add examples
+          TODO: Add more examples
         </div>
+
+
+        <h4>Document Merkleization</h4>
+        <p>Consider the following JSON-LD document as an example:</p>
+          <pre class="example"><code>
+        {
+          "@context": "http://schema.org/",
+          "@type": "Person",
+          "name": "Jane Doe",
+          "jobTitle": "Professor",
+          "telephone": "(425) 123-4567"
+        }</code></pre>
+
+        <p>After expanding and canonicalizing the JSON-LD document, we obtain the list of RDF Quads. The key-value pairs derived from these RDF Quads can be represented in the following table:</p>
+    
+        <table class="borders-table">
+          <thead>
+            <tr>
+              <th>Path</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>http://schema.org/jobTitle</td>
+              <td>Professor</td>
+            </tr>
+            <tr>
+              <td>http://schema.org/name</td>
+              <td>Jane Doe</td>
+            </tr>
+            <tr>
+              <td>http://schema.org/telephone</td>
+              <td>(425) 123-4567</td>
+            </tr>
+            <tr>
+              <td>http://www.w3.org/1999/02/22-rdf-syntax-ns#type</td>
+              <td>http://schema.org/Person</td>
+            </tr>
+          </tbody>
+        </table>
+    
+        <p>Following the extraction of key-value pairs from the RDF Quads, we construct a Merkle tree using these pairs. Each key-value pair represents a leaf node in the Merkle tree, with the key being the path in the tree and the leaf's value being the hash of the pair's value.</p>
+
+        <p>The following image represents the resulting Merkle tree constructed using the key-value pairs from the table above:</p>
+        <img src="https://raw.githubusercontent.com/tronch0/BJJSignature2021/main/mt.png" style="max-width: 100%;" alt="Description of the image" />
+
       </section>
     </section>
 
     <section id="conformance">
-      <!-- <h2>Conformance</h2>
-      <p>
-        Specify the conformance requirements and criteria for implementations of the signature suite.
-      </p> -->
+
     </section>
 
     <!-- <section id="references">
@@ -370,11 +396,5 @@
       </p>
     </section> -->
 
-    <!-- <section id="acknowledgments">
-      <h2>Acknowledgments</h2>
-      <p>
-        Acknowledge contributors, reviewers, and others who have been involved in the development of the signature suite.
-      </p>
-    </section> -->
   </body>
 </html>
