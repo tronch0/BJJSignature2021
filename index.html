@@ -232,10 +232,11 @@
             <li>Obtain a list of RDF Quads from the canonicalized document.</li>
             <li>For each Quad, construct a key-value pair where the key represents the complete type path, and the value corresponds to the entry's value. </li>
             <li>Insert each key-value pair into the Merkle Tree, with the key serving as the path in the tree and the leaf's value being the hash of the pair's value, computed using the designated <a>message digest algorithm</a>.
+            <li>For each key-value pair, first hash the key using the designated <a>message digest algorithm</a>, and use the hashed key as the path in the Merkle Tree. Then, hash the value using the same message digest algorithm, and set the resulting hash as the value of the corresponding leaf node in the tree.</li>
           </ol>
         </p>
 
-        <p>For a detailed illustration of the Merkleization algorithm applied to a JSON-LD document, please refer to the example provided in the <a href="#document-merkleization">Examples</a> section of this document.</p>
+        <p>For a detailed illustration of the Merkleization algorithm applied to a JSON-LD document, please refer to the <a href="#document-merkleization">example</a> provided in the Examples section of this document.</p>
 
       </section>
       
@@ -358,9 +359,9 @@
           </tbody>
         </table>
     
-        <p>Following the extraction of key-value pairs from the RDF Quads, we construct a Merkle tree using these pairs. Each key-value pair represents a leaf node in the Merkle tree, with the key being the path in the tree and the leaf's value being the hash of the pair's value.</p>
+        <p>Following the extraction of key-value pairs from the RDF Quads, we construct a Merkle tree using these pairs. For each key-value pair, the key is hashed using the designated <a>message digest algorithm</a> to obtain the path in the Merkle tree. The value is also hashed using the same algorithm, and the resulting hash serves as the value of the corresponding leaf node in the tree.</p>
 
-        <p>The following image represents the resulting Merkle tree constructed using the key-value pairs from the table above:</p>
+        <p>The following image represents the resulting Merkle tree constructed using the hashed paths and values derived from the key-value pairs in the table above:</p>
         <img src="https://raw.githubusercontent.com/tronch0/BJJSignature2021/main/mt.png" style="max-width: 100%;" alt="Description of the image" />
 
       </section>
