@@ -240,7 +240,39 @@
 
       </section>
       
-      <section id="proof-generation-verification">
+
+       <section id="BJJSignature2021">
+        <h3>BJJSignature2021</h3>
+
+        <section id="proof-generation">
+          <h4>Proof Generation</h4>
+          <p>
+            The <a>BJJSignature2021</a> proof generation process follows a specific algorithm to ensure the integrity and authenticity of JSON-LD documents. The steps of the algorithm are as follows:
+            <ol>
+              <li>Expand the JSON-LD document using the <a href="https://www.w3.org/TR/json-ld11-api/#expansion">JSON-LD 1.1 Processing Algorithms.</a></li>
+              <li>Canonicalize the document using the URDNA2015 algorithm [[RDF-DATASET-NORMALIZATION]].</li>
+              <li>Apply the <a href="#document-merklization-algorithm">Document Merklization Algorithm</a> to create a Merkle tree from the canonicalized document.</li>
+              <li>Sign the root of the document's Merkle tree using the associated private key.</li>
+            </ol>
+          </p>  
+        </section>
+
+       </section>
+
+
+
+       <section id="Iden3StateInfo2023">
+        <h3>Iden3StateInfo2023</h3>
+
+        <section id="proof-verification">
+          <h4>Proof Verification</h4>
+
+        </section>
+
+       </section>
+
+
+      <!-- <section id="proof-generation-verification">
         <h3>Proof Generation and Verification</h3>
 
         <h4 id="proof-generation">Proof Generation Algorithm</h4>
@@ -266,13 +298,6 @@
             <li>Veirify the signature agaisnt the root of the document's merkle tree and the public key.</li>
           </ol>
         </p>  
-      </section>
-
-      <!-- <section id="proof-representation">
-        <h3>Proof Representation</h3>
-        <p>
-          ...
-        </p>
       </section> -->
 
       <section id="security-considerations">
