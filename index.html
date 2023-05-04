@@ -182,7 +182,11 @@
         and validating proofs against this data to ensure secure and efficient identity management within decentralized
         systems.
       </dd>
-
+ 
+      <dt><dfn>Merklization</dfn></dt>
+      <dd>
+        The <code>algorithm</code> representing a way of transforming rdf normalized dataset to a merkle tree with further usage for signing /  zero-knowledge proofs / selective disclosure, etc.
+      </dd>
 
     </dl>
   </section>
@@ -196,6 +200,7 @@
       the Linked Data Signatures [[LD-SIGNATURES]] specification. The suite consists of the following algorithms:
     </p>
 
+    
     <table class="simple">
       <thead>
         <th>Parameter</th>
@@ -205,7 +210,8 @@
       <tbody>
         <tr>
           <td>canonicalizationAlgorithm</td>
-          <td>https://w3id.org/security#URDNA2015</td>
+          <td>https://w3id.org/security#URDNA2015
+          </td>
           <td>[[RDF-DATASET-NORMALIZATION]]</td>
         </tr>
         <tr>
@@ -221,7 +227,9 @@
       </tbody>
 
     </table>
-
+    <div class="issue">
+      TODO: are we sure that a merklization is not part of canonicalizationAlghorithm?
+    </div>
     <section id="modification-to-algorithms">
       <h3>Modification to Algorithms</h3>
       <p>
@@ -264,7 +272,7 @@
         <a href="#document-merkleization">example</a> provided in the Examples section of this document.</p>
 
       <h4>Selective Disclosure</h4>
-
+   
       <p>To better comprehend how the signature suite enables selective disclosure, let us examine the underlying
         mechanism. In this process, a credential undergoes Merkleization, during which each entry of the document is
         stored in a leaf. Subsequently, the root is signed by the issuer. To facilitate selective disclosure, the prover
@@ -273,7 +281,7 @@
       <ol>
         <li>The root of the Merkleized credential.</li>
         <li>The issuer's signature on the root.</li>
-        <li>The relevant authentication paths for the selectively disclosed entries.</li>
+        <li>The relevant authentication paths for the selectively disclosed entries.</li> <p class="issue"> I think we should use sparse merkle tree proof here and give the example of inclusion the field path to tree root. </p>
       </ol>
 
       By providing this information, the prover demonstrates the possession of a valid credential containing specific
@@ -303,9 +311,13 @@
             "coreClaim": "c9b2370371b7fa8b3dab2a5ba81b68382a00000000000000000000000000000001129e344820de5301d7ae7f88ba5143f4ab9a9506e82331ec7ae8b21a830d006059621a4a3ed91795fc7919557e41c793ddbe93a30bc970f005cc72f89760270000000000000000000000000000000000000000000000000000000000000000c913b95700000000281cdcdf0200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
             "signature": "588a56edc9862e0c7e2dbddade2ab30a156a36ac491205e82c6c1c9dfb5cd82c3bb51070c25a7f34cebf732013f11ef2c48a7c2e7cf706ec305d25b1bccffa05"
         }</code></pre>
-      <p>The proof contains the signature of the coreClaim which is a serialization of the whole VC document except for
-        the proof. The signature is created using the issuer's private key.</p>
-
+      <p> <s>The proof contains the signature of the coreClaim which is a serialization of the whole VC document except for
+        the proof. The signature is created using the issuer's private key.</s></p>
+        <p> The proof contains the signature of the coreClaim which is byte representation of the VC document according to <a href="https://docs.iden3.io/getting-started/claim/generic-claim/">iden3</a>  protocol to the core claim structure. CoreClaim contains merklized root of VC. The signature is created using the issuer's private key.></p>
+  
+        <div class="issue">
+          should we use more detailed example from <a href="https://github.com/iden3/claim-schema-vocab/blob/main/core/vocab/BJJSignature2021.md">vocab</a> Because this document should become vocab
+        </div>
       <section id="proof-generation">
         <h4>Proof Generation</h4>
         <p>
@@ -317,7 +329,8 @@
           <li>Canonicalize the document using the URDNA2015 algorithm [[RDF-DATASET-NORMALIZATION]].</li>
           <li>Apply the <a href="#document-merklization-algorithm">Document Merklization Algorithm</a> to create a
             Merkle tree from the canonicalized document.</li>
-          <li>Sign the root of the document's Merkle tree using the associated private key.</li>
+          <li> <i>Convert Verifiable Credential to Iden3 Core claim representation, with included merkle root. </i></li>
+          <li>Sign the iden3 core claim using the associated private key.</li>
         </ol>
         </p>
 
@@ -326,12 +339,15 @@
     </section>
 
 
+  
 
     <section id="Iden3StateInfo2023">
       <h3>Iden3StateInfo2023</h3>
 
+      <div class="issue"> We need to 'register' our verification method : <a href="www.w3.org/TR/did-spec-registries/#verification-method-types">in the registry </a></div>
+
       <p>The <a>Iden3StateInfo2023</a> object is defined in the issuer's DID document and holds essential information
-        about the issuer's state, such as state roots and related data. This object plays a crucial role in the
+        about the issuer's (identity) state, such as state roots and related data. This object plays a crucial role in the
         verification process of verifiable credentials.</p>
 
       <pre class="example"><code>
@@ -360,11 +376,18 @@
         }
         </code></pre>
 
-      <p>The issuer stores their public key in the state tree. During the verification of the verifiable credential, the
+      <p><s>The issuer stores their public key in the state tree. During the verification of the verifiable credential, the
         verifier must check that the public key used to sign the document has an authentication path from the root
-        specified in the <a>Iden3StateInfo2023</a> object in the DID document.</p>
+        specified in the <a>Iden3StateInfo2023</a> object in the DID document. </s></p>
+       
+      <p>The issuer stores their public key in the state tree. During the verification of the verifiable credential, the
+          verifier must check that the  BJJ public key used to sign the document has been included to the issuer state and this state corresponds to given identifier <a>Iden3StateInfo2023</a> object in the DID document.</p>
+  
+
       <p>To see an example of Iden3StateInfo2023 object in a DID document, please refer to the <a
           href="#did-document">example</a> provided in the Examples section of this document.</p>
+
+     <div class="issue"> We need to add verifcation method of EcdsaBJJVerificationKey as verification method to represent a BJJ key in the JWK format : <a href="www.w3.org/TR/did-spec-registries/#verification-method-types">in the registry </a></div>
 
       <section id="proof-verification">
         <h4>Proof Verification</h4>
@@ -373,21 +396,21 @@
         </div>
         <p>
 
-          To verify the authenticity and integrity of a selectively disclosed credential, the following steps should be
+          To verify the authenticity and integrity of a selectively disclosed credential or zero-knowledge proof of merklized credential, the following steps should be
           performed:
 
         <ol>
           <li>Retrieve the issuer's DID document and locate the <a>Iden3StateInfo2023</a> object containing the state
             root and other relevant information.</li>
-          <li>Verify that the issuer's public key, which signed the document, has a valid authentication path from the
-            state root specified in the <a>Iden3StateInfo2023</a> object within the DID document.</li>
+          <li>Verify that the issuer's public key, which signed the document, <s>has a valid authentication path from the
+            state root</s> has been inluded to the issuer state and this state has been published for identity in specified in the <a>Iden3StateInfo2023</a> object within the DID document.</li>
           <li>Obtain the root of the Merkleized credential, the issuer's signature on the root, and the relevant
             authentication paths for the selectively disclosed entries from the prover.</li>
           <li>Validate the issuer's signature on the VC root using the issuer's public key.</li>
-          <li>Reconstruct the Merkle tree based on the selectively disclosed entries and their corresponding
-            authentication paths.</li>
-          <li>Ensure that the reconstructed Merkle tree's root matches the root provided by the prover, thereby
-            confirming the integrity and authenticity of the selectively disclosed credential.</li>
+          <li>Check that issuer key is not revoked using <i>credentialStatus</i> property of issuerData</li>
+          <li>Check that the selectively disclosed entries are included to the signed merkle root.  </li>
+          <li><s>Ensure that the reconstructed Merkle tree's root matches the root provided by the prover, thereby
+            confirming the integrity and authenticity of the selectively disclosed credential.</li></s>
         </ol>
 
         </p>
@@ -445,6 +468,32 @@
 
     <section id="examples">
       <h3>Examples</h3>
+
+      <h4>BJJ Signature proof example</h4>
+      <pre class="example"><code>
+        {
+          "type": "BJJSignature2021",
+          "issuerData": {
+            "id": "did:iden3:polygon:mumbai:x3ao3YPQ8Bx3yrwX1upFz3rzVEhSTFQBLshw7obXh",
+            "state": {
+              "claimsTreeRoot": "283972ecf5b21feb4bc375b7fdfa9a81d42472c27e2ecc0608d04afa41ee451c",
+              "value": "4cbd1cc549b5d49d59cd4c8549e0d880f4020f3249392a20417cf0bf93bb3122"
+            },
+            "authCoreClaim": "013fd3f623559d850fb5b02ff012d0e20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005e7de819afaa84796f743efe8637a3888d181011ac0886a60647a4d061875f23be53b399bb7f7188852865593b097245c004fd697995fcf9bb0b98da95b577040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "mtp": {
+              "existence": true,
+              "siblings": []
+            },
+            "credentialStatus": {
+              "id": "http://localhost:8001/api/v1/identities/did%3Aiden3%3Apolygon%3Amumbai%3Ax3ao3YPQ8Bx3yrwX1upFz3rzVEhSTFQBLshw7obXh/claims/revocation/status/0",
+              "revocationNonce": 0,
+              "type": "SparseMerkleTreeProof"
+            }
+          },
+          "coreClaim": "c9b2370371b7fa8b3dab2a5ba81b68380a0000000000000000000000000000000112092aaf1c9412d6847a8fd7a659d42be7141f057e0de5dbfb26171eaf0b00689230010000000000000000000000000000000000000000000000000000000063000000000000000000000000000000000000000000000000000000000000006a58effb00000000281cdcdf0200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "signature": "09b37a367509cf2e4f9819385e6dc8023ac1c7470bb2fecc652e357cd804cc8512ab3c0e2d7d2af98924f52280aa559c4ff04aac50e41cc45463d3356bdef602"
+        }
+          </code></pre>
 
       <h4>DID Document</h4>
       <pre class="example"><code>
