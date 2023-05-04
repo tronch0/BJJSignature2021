@@ -344,7 +344,7 @@
     <section id="Iden3StateInfo2023">
       <h3>Iden3StateInfo2023</h3>
 
-      <div class="issue"> Issue1 : Iden3StateInfo2023 is used to get the information about state of issuer, but it will mostly used for Iden3SparseMekleTreeProof</div>
+      <div class="issue"> We need to 'register' our verification method : <a href="www.w3.org/TR/did-spec-registries/#verification-method-types">in the registry </a></div>
 
       <p>The <a>Iden3StateInfo2023</a> object is defined in the issuer's DID document and holds essential information
         about the issuer's (identity) state, such as state roots and related data. This object plays a crucial role in the
@@ -386,6 +386,8 @@
 
       <p>To see an example of Iden3StateInfo2023 object in a DID document, please refer to the <a
           href="#did-document">example</a> provided in the Examples section of this document.</p>
+
+     <div class="issue"> We need to add verifcation method of EcdsaBJJVerificationKey as verification method to represent a BJJ key in the JWK format : <a href="www.w3.org/TR/did-spec-registries/#verification-method-types">in the registry </a></div>
 
       <section id="proof-verification">
         <h4>Proof Verification</h4>
